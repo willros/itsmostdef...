@@ -8,24 +8,34 @@ import tempfile
 
 N_READS = 5000
 
+
 def help() -> None:
     print("[USAGE]:    ", end="")
-    print(f"{sys.argv[0]} <fastq_file> <kraken_db> <n_threads> [kraken2_path (default = kraken2)]")
+    print(
+        f"{sys.argv[0]} <fastq_file> <kraken_db> <n_threads> [kraken2_path (default = kraken2)]"
+    )
     sys.exit(1)
 
 
 def wrangle_kraken(kraken: str) -> pd.DataFrame:
     kraken_df = (
         pd.read_csv(
-            kraken, sep="\t", header=None,
-            names=["percent", "count_clades", "count", "tax_lvl", "taxonomy_id", "name"]
+            kraken,
+            sep="\t",
+            header=None,
+            names=[
+                "percent",
+                "count_clades",
+                "count",
+                "tax_lvl",
+                "taxonomy_id",
+                "name",
+            ],
         )
         .assign(name=lambda x: x.name.str.strip())
         .assign(
             domain=lambda x: np.select(
-                [x.tax_lvl.isin(["D", "U", "R"])],
-                [x.name],
-                default=pd.NA
+                [x.tax_lvl.isin(["D", "U", "R"])], [x.name], default=pd.NA
             )
         )
         .fillna(method="ffill")
@@ -33,15 +43,12 @@ def wrangle_kraken(kraken: str) -> pd.DataFrame:
         .loc[lambda x: x["count"] > 20]
         .sort_values("percent", ascending=False)
     )
-    
+
     return kraken_df
-    
-    
+
+
 def kraken_classify(
-    fastq_file: str,
-    db: str,
-    threads: int,
-    kraken2: str = None
+    fastq_file: str, db: str, threads: int, kraken2: str = None
 ) -> None:
     if not Path(fastq_file).exists():
         print(f"[ERROR:]   FASTQFILE: {fastq_file}, does not exist. Exiting")
@@ -54,26 +61,31 @@ def kraken_classify(
     kraken2 = kraken2 or "kraken2"
 
     counter = 0
-    with tempfile.NamedTemporaryFile(mode='a+') as subsampled_fastq:
+    with tempfile.NamedTemporaryFile(mode="a+") as subsampled_fastq:
         for x in fastq_file:
             print(f"@{x[0]}", file=subsampled_fastq)
             print(f"{x[1]}", file=subsampled_fastq)
             print(f"+", file=subsampled_fastq)
             print(f"{x[2]}", file=subsampled_fastq)
-            
+
             counter += 1
             if counter > N_READS:
                 break
-    
+
         subsampled_fastq = subsampled_fastq.name
 
         with tempfile.NamedTemporaryFile(mode="a+") as kraken_report:
             command = f"{kraken2} --db {db} --threads {threads} --use-names {subsampled_fastq} --report {kraken_report.name}"
             print(f"Running kraken on {str(fastq_file)}")
-                
-            subprocess.call(command, shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+
+            subprocess.call(
+                command,
+                shell=True,
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+            )
             kraken = wrangle_kraken(kraken_report.name)
-    
+
     return kraken
 
 
@@ -113,7 +125,6 @@ def main() -> None:
     print("---------------------------------------------------------")
     print("                [NOTHING MORE WAS DETECTED]")
     print("---------------------------------------------------------")
-
 
     sys.exit(0)
 
