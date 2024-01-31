@@ -20,3 +20,22 @@
 
 Samples 5000 reads from the `fastq_file` using `pyfastx`. Classifies the reads with kraken2 and the database. Prints the most common species in the `fastq_file`.
 
+## Example output
+
+```bash
+
+                    ..::RESULTS::..
+---------------------------------------------------------
+[PERCENT UNCLASSIFIED READS]:            18.08%
+---------------------------------------------------------
+                    ------------------
+                    |IT'S MOST DEF...|
+                    ------------------
+
+[STAPHYLOCOCCUS AUREUS]:                 9.99%
+[HOMO SAPIENS]:                          6.48%
+[DIETZIA LUTEA]:                         0.42%
+---------------------------------------------------------
+                [NOTHING MORE WAS DETECTED]
+---------------------------------------------------------
+```
