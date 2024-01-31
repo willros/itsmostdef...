@@ -7,3 +7,7 @@
 * kraken2 (with DB)
 * pyfastx 
 * pandas
+
+# USAGE
+
+`[USAGE]:   itsmostdef... <fastq_file> <kraken_db> <n_threads> [kraken2_path (default = kraken2)]`
