@@ -2,6 +2,12 @@
 
 `itsmostdef...` is a python package that fast and simple classifies the most likely content in a `.fastq|.fasta` file.
 
+## Install
+
+```bash
+pip install itsmostdef
+```
+
 
 ## Dependencies
 * kraken2 (with DB)
